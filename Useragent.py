@@ -19,7 +19,6 @@ class UserAgent:
     def printID(self, id1):
         self.id = id1
         print(self.preference)
-        a = b + 1
 
     def takeAction(self, time):
         newPreference = []
