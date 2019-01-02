@@ -21,7 +21,7 @@ def resetUserList():
 
 
 def drawPlot():
-    mark = ['-o','-*','-v','-+','-x']
+    mark = ['-o','-*','-v','-+','-x','-']
     #mark = ['-', ':', '-.', '_', '-x']
     x = np.linspace(0, timeStep+1, timeStep+1)
     fig = plt.figure()
@@ -65,12 +65,12 @@ resetUserList()
 eve = Approach.EVE1(timeStep, budget, userlist)
 eve.simulate()
 ratesList.append(eve)
-'''
+
 resetUserList()
-ucb = Approach.UCB(timeStep, budget, userlist, 10)
+ucb = Approach.fKUBE(timeStep, budget, userlist)
 ucb.simulate()
 ratesList.append(ucb)
-'''
+
 resetUserList()
 eg = Approach.epsilon_greedy(timeStep, budget, userlist, 0.1)
 eg.simulate()

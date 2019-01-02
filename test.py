@@ -70,7 +70,6 @@ for i in range(timestep):
     eg.update(selected,reward)
     rate.append(eg.loss)
 ratesList.append(rate)
-drawPlot()
+
 '''
-for i in range(10):
-    print(np.random.randn(1))
+drawPlot()

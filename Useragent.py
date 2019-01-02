@@ -12,6 +12,7 @@ class task:
         self.values = [0.0 for _ in range(self.arm_num)]
         self.counts = [0.0 for _ in range(self.arm_num)]
         self.costs = [0.0 for _ in range(self.arm_num)]
+        self.currentArm = 0
 
     def update(self, arm, reward):
         self.counts[arm] += 1
@@ -79,7 +80,10 @@ class UserAgent:
                 return newPreference.index(index)
 
     def calculateTemporaryPre(self):
-        tempPre = self.taskReward * math.exp(0.1 * (self.continuousNum + 1 - self.taskNum))
+        if self.taskNum != 0:
+            tempPre = self.taskReward * (self.continuousNum +1)/ self.taskNum
+        else:
+            tempPre = 0.0
         return tempPre
 
     def __eq__(self, other):
