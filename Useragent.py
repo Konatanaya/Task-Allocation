@@ -80,10 +80,7 @@ class UserAgent:
                 return newPreference.index(index)
 
     def calculateTemporaryPre(self):
-        if self.taskNum != 0:
-            tempPre = self.taskReward * (self.continuousNum +1)/ self.taskNum
-        else:
-            tempPre = 0.0
+        tempPre = self.taskReward * math.exp(-0.1 * (self.continuousNum + 1 - self.taskNum))
         return tempPre
 
     def __eq__(self, other):

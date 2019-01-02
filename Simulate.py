@@ -4,7 +4,7 @@ from Useragent import UserAgent
 import Approach
 
 timeStep = 500
-budget = 15000
+budget = 10000
 userlist = set()
 ratesList = []
 

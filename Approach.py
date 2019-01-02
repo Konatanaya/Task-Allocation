@@ -4,7 +4,7 @@ import random
 
 
 class Approach:
-    rate = 2.0
+    rate = 1.0
 
     def __init__(self, time, budget):
         self.timestep = time
