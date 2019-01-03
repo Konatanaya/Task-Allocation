@@ -47,7 +47,6 @@ class UserAgent:
         self.taskReward = 0.0
         self.engagementDegree = 0.0
 
-
     def printID(self, id1):
         self.id = id1
         print(self.preference)
@@ -61,10 +60,10 @@ class UserAgent:
             newPreference.append(pre)
             index = self.preference.index(pre)
             if index == 0:
-                newPreference[index] += self.calculateTemporaryPre()
+                newPreference[index] += self.calculateTemporaryPre(self.continuousNum + 1, self.taskNum)
             else:
-                newPreference[index] -= self.calculateTemporaryPre() / (len(self.preference) - 1)
-                if newPreference[index] <0:
+                newPreference[index] -= self.calculateTemporaryPre(self.continuousNum, self.taskNum)
+                if newPreference[index] < 0:
                     newPreference[index] = 0.0
 
         self.action = self.chooseAction(newPreference)
@@ -79,8 +78,8 @@ class UserAgent:
             if rand < fenzi / s:
                 return newPreference.index(index)
 
-    def calculateTemporaryPre(self):
-        tempPre = self.taskReward * math.exp(-0.1 * (self.continuousNum + 1 - self.taskNum))
+    def calculateTemporaryPre(self, c, d):
+        tempPre = self.taskReward * math.exp(0.1 * (c - d))
         return tempPre
 
     def __eq__(self, other):

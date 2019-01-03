@@ -48,7 +48,7 @@ class Approach:
             return l
 
     def calReward(self, user):
-        user.taskReward = user.taskNum *self.rate* (1-self.status)
+        user.taskReward = user.taskNum* self.rate * (1 - self.status)
 
     def printClassName(self):
         return self.__class__.__name__
@@ -173,7 +173,6 @@ class epsilon_first(Approach):
         self.userList = userList
         self.exploreBudget = self.budget * epslion
 
-
     def allocateTask(self, user):
         user.taskNum = self.generateTaskNum(user) + 1
 
@@ -183,11 +182,11 @@ class epsilon_first(Approach):
     def generateTaskNum(self, user):
         value = []
         for index in range(user.task.arm_num):
-            value.append(user.task.values[index] / (user.task.costs[index]+0.01))
+            value.append(user.task.values[index] / (user.task.costs[index] + 0.01))
         return np.argmax(value)
 
-    def checkArm(self,user):
-        if user.task.currentArm < user.task.arm_num-1:
+    def checkArm(self, user):
+        if user.task.currentArm < user.task.arm_num - 1:
             user.task.currentArm += 1
         else:
             user.task.currentArm = 0
@@ -273,14 +272,16 @@ class fKUBE(Approach):
     def generateTaskNum(self, user):
         value = []
         for index in range(user.task.arm_num):
-            value.append((user.task.values[index] + math.sqrt(math.log(sum(user.task.counts))/user.task.counts[index]))/user.task.costs[index])
+            value.append(
+                (user.task.values[index] + math.sqrt(math.log(sum(user.task.counts)) / user.task.counts[index])) /
+                user.task.costs[index])
         return np.argmax(value)
 
     def explore(self, user):
         user.taskNum = user.task.currentArm + 1
 
-    def checkArm(self,user):
-        if user.task.currentArm < user.task.arm_num-1:
+    def checkArm(self, user):
+        if user.task.currentArm < user.task.arm_num - 1:
             user.task.currentArm += 1
         else:
             user.task.currentArm = 0

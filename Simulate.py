@@ -77,7 +77,7 @@ eg.simulate()
 ratesList.append(eg)
 
 resetUserList()
-ef = Approach.epsilon_first(timeStep, budget, userlist, 0.1)
+ef = Approach.epsilon_first(timeStep, budget, userlist, 0.2)
 ef.simulate()
 ratesList.append(ef)
 
