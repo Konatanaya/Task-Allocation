@@ -1,6 +1,7 @@
 import random, math
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.stats import binom, norm, beta, expon
 
 ratesList = []
 timestep = 10000
@@ -22,54 +23,14 @@ def drawPlot():
     plt.ylabel("Proportion of participating users")
     plt.show()
 
-class approach():
-    def __init__(self):
-        self.loss = 0.0
 
-class EpsilonGreedy(approach):
-    def __init__(self, arm_n, epsilon):
-        approach.__init__(self)
-        self.arm_n = arm_n
-        self.epsilon = epsilon
-        self.values = [0.0 for _ in range(self.arm_n)]
-        self.counts = [0.0 for _ in range(self.arm_n)]
-
-    def update(self, arm, reward):
-        self.counts[arm] += 1
-        self.values[arm] += (reward - self.values[arm]) / self.counts[arm]
-        self.loss += 1 - reward
-
-    def pull(self):
-        if random.random() < self.epsilon:
-            return random.choice(range(self.arm_n))
-        else:
-            m = max(self.values)
-            return self.values.index(m)
-'''
-arms = [0.3,0.3,0.8]
-rate = []
-eg = EpsilonGreedy(3,0.1)
-for i in range(timestep):
-    selected = eg.pull()
-    if random.random()<arms[selected]:
-        reward = 1
-    else:
-        reward = 0
-    eg.update(selected,reward)
-    rate.append(eg.loss)
-ratesList.append(rate)
-
-rate = []
-eg = EpsilonGreedy(3,0.01)
-for i in range(timestep):
-    selected = eg.pull()
-    if random.random()<arms[selected]:
-        reward = 1
-    else:
-        reward = 0
-    eg.update(selected,reward)
-    rate.append(eg.loss)
-ratesList.append(rate)
-
-'''
-drawPlot()
+a = 2
+b = 1
+print(a/(a+b))
+x = np.arange(0.01, 1, 0.01)
+y = beta.pdf(x, a, b)
+plt.plot(x, y)
+plt.title('Beta: a=%.1f,b=%.1f' % (a, b))
+plt.xlabel('x')
+plt.ylabel('density')
+plt.show()

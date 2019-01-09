@@ -10,13 +10,9 @@ class task:
 
     def __init__(self):
         self.values = [0.0 for _ in range(self.arm_num)]
-        self.counts = [0.0 for _ in range(self.arm_num)]
+        self.counts = [0 for _ in range(self.arm_num)]
         self.costs = [0.0 for _ in range(self.arm_num)]
         self.currentArm = 0
-
-    def update(self, arm, reward):
-        self.counts[arm] += 1
-        self.values[arm] += (reward - self.values[arm]) / self.counts[arm]
 
     def updateExplore(self, arm, reward, cost):
         self.counts[arm] += 1
@@ -26,15 +22,17 @@ class task:
 
 class UserAgent:
     def __init__(self, id, preNum):
+        self.id = id
         self.preference = []
         self.action = -1
         self.continuousNum = 0
         self.taskNum = 0
         self.taskReward = 0.0
-        self.id = id
         self.task = task()
         self.engagementDegree = 0.0
         self.beta = 0.1
+        self.fail = 1
+        self.success = 1
         for index in range(preNum):
             self.preference.append(random.random())
             # self.preference[0]=0.0
@@ -46,6 +44,8 @@ class UserAgent:
         self.taskNum = 0
         self.taskReward = 0.0
         self.engagementDegree = 0.0
+        self.fail = 1
+        self.success = 1
 
     def printID(self, id1):
         self.id = id1
@@ -79,7 +79,7 @@ class UserAgent:
                 return newPreference.index(index)
 
     def calculateTemporaryPre(self, c, d):
-        tempPre = self.taskReward * math.exp(0.1 * (c - d))
+        tempPre = self.taskReward * math.exp((1-self.engagementDegree) * (c - d))
         return tempPre
 
     def __eq__(self, other):
