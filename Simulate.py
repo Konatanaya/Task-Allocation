@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from Useragent import UserAgent
-import Approach, BTA, EpsilonF,fKUBE
+import Approach, BTA, EpsilonF,fKUBE,EVE
 
 timeStep = 500
 budget = 10000
@@ -43,7 +43,7 @@ def drawPlot():
     # plt.axis([0,timeStep,0.0,1.0])
     # plt.ylim(0,1.0)
     plt.xlabel("Time step")
-    plt.ylabel("Loss in total")
+    plt.ylabel("Average Difficulty of Task")
 
     plt.subplot(1, 3, 3)
     for index in range(len(ratesList)):
@@ -60,24 +60,24 @@ def drawPlot():
 
 
 initUserList()
-
+''''
 resetUserList()
 control = Approach.Control(timeStep, budget, userlist)
 control.simulate()
 #ratesList.append(control)
-
+'''
 resetUserList()
 ta = BTA.BTA(timeStep, budget, userlist)
 ta.simulate()
 ratesList.append(ta)
-'''
+
 
 
 resetUserList()
-eve = Approach.EVE1(timeStep, budget, userlist)
+eve = EVE.EVE1(timeStep, budget, userlist)
 eve.simulate()
 ratesList.append(eve)
-'''
+
 resetUserList()
 ucb = fKUBE.fKUBE(timeStep, budget, userlist)
 ucb.simulate()
@@ -89,7 +89,7 @@ eg.simulate()
 ratesList.append(eg)
 '''
 resetUserList()
-ef = EpsilonF.epsilon_first(timeStep, budget, userlist, 0.1)
+ef = EpsilonF.epsilon_first(timeStep, budget, userlist, 0.5)
 ef.simulate()
 ratesList.append(ef)
 

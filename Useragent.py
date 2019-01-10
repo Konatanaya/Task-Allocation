@@ -15,10 +15,11 @@ class task:
         self.currentArm = 0
 
     def updateExplore(self, arm, reward, cost):
-        self.counts[arm] += 1
         self.costs[arm] += (cost - self.costs[arm]) / self.counts[arm]
         self.values[arm] += (reward - self.values[arm]) / self.counts[arm]
 
+    def updateCount(self, arm):
+        self.counts[arm] += 1
 
 class UserAgent:
     def __init__(self, id, preNum):
@@ -33,6 +34,7 @@ class UserAgent:
         self.beta = 0.1
         self.fail = 1
         self.success = 1
+        self.currentFeed = 0.0
         for index in range(preNum):
             self.preference.append(random.random())
             # self.preference[0]=0.0
@@ -46,15 +48,19 @@ class UserAgent:
         self.engagementDegree = 0.0
         self.fail = 1
         self.success = 1
+        self.currentFeed = 0.0
 
     def printID(self, id1):
         self.id = id1
         print(self.preference)
 
     def takeAction(self, approach):
+        '''
         if approach.budget < self.taskReward:
             self.taskReward = 0.0
             self.taskNum = 0
+            self.continuousNum = 0
+        '''
         newPreference = []
         for pre in self.preference:
             newPreference.append(pre)
@@ -67,6 +73,14 @@ class UserAgent:
                     newPreference[index] = 0.0
 
         self.action = self.chooseAction(newPreference)
+        if self.action == 0 and self.taskNum != 0:
+            self.continuousNum += 1
+        else:
+            ''''
+            if approach.budget > 0 and self.taskNum != 0:
+                approach.calculateReward(self)
+            '''
+            self.continuousNum = 0
 
     def chooseAction(self, newPreference):
         s = sum(newPreference)
@@ -79,7 +93,7 @@ class UserAgent:
                 return newPreference.index(index)
 
     def calculateTemporaryPre(self, c, d):
-        tempPre = self.taskReward * math.exp((1-self.engagementDegree) * (c - d))
+        tempPre = self.taskReward * math.exp(0.1*(c-d))
         return tempPre
 
     def __eq__(self, other):

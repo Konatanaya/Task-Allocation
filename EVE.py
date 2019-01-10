@@ -4,14 +4,13 @@ import random
 from Approach import Approach
 from Useragent import UserAgent
 
-class BTA(Approach):
+class EVE1(Approach):
     def __init__(self, time, budget, userList):
         Approach.__init__(self, time, budget)
         self.userList = userList
 
     def allocateTask(self, user):
-        prior = user.success / (user.success + user.fail)
-        user.taskNum = math.floor(math.exp(prior*(user.engagementDegree-1))*self.maxTask)
+        user.taskNum = 1
 
     def checkAction(self, user):
         if user.action == 0:
@@ -26,7 +25,6 @@ class BTA(Approach):
                     self.budget = 0
                 user.taskReward = 0
         else:
-
             if user.taskNum != 0:
                 user.fail += 1
             user.engagementDegree += self.beta * (0 - user.engagementDegree)

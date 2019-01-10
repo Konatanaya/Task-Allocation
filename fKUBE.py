@@ -8,67 +8,56 @@ class fKUBE(Approach):
         Approach.__init__(self, time, budget)
         self.userList = userList
         self.totalCount = 0
+        self.exploreStatus = 1
 
     def allocateTask(self, user):
         user.taskNum = self.generateTaskNum(user)
+        user.task.updateCount(user.taskNum - 1)
 
     def generateTaskNum(self, user):
         value = []
         for index in range(user.task.arm_num):
-            value.append(
-                (user.task.values[index] + math.sqrt(math.log(sum(user.task.counts)) / user.task.counts[index])) /
-                user.task.costs[index])
-        return np.argmax(value)
+            v = user.task.values[index] + math.sqrt(np.log(sum(user.task.counts)/user.task.counts[index]))
+            value.append(v / (user.task.costs[index]+0.001))
+        return np.argmax(value)+1
 
     def explore(self, user):
-        user.taskNum = user.task.currentArm + 1
+        user.taskNum = user.task.currentArm
+        user.task.updateCount(user.taskNum - 1)
 
     def checkArm(self, user):
         if user.task.currentArm < user.task.arm_num - 1:
             user.task.currentArm += 1
         else:
-            user.task.currentArm = 0
+            user.task.currentArm = -1
 
     def checkAction(self, user):
-        l = 0.0
-        self.cost = 0.0
         if user.action == 0:
             user.engagementDegree += self.beta * (1 - user.engagementDegree)
-            user.continuousNum += 1
             if user.continuousNum == user.taskNum:
                 user.continuousNum = 0
                 user.taskNum = 0
-                self.cost = user.taskReward
-                self.checkArm(user)
                 self.budget -= user.taskReward
                 if self.budget <= 0:
                     self.budget = 0
                 user.taskReward = 0
-                return l
-            return l
         else:
             user.engagementDegree += self.beta * (0 - user.engagementDegree)
-            self.cost = 0.01
-            if user.taskNum != 0:
-                l = 1.0 - user.continuousNum / user.taskNum
-                '''
-                self.budget -= user.taskReward * user.continuousNum / user.taskNum
-                self.cost = user.taskReward * user.continuousNum / user.taskNum
-                if self.budget <= 0:
-                    self.budget = 0
-                    '''
-            user.continuousNum = 0
             user.taskNum = 0
             user.taskReward = 0
-            self.checkArm(user)
-            return l
 
     def updateArm(self, user):
+        cost = 0.0
         if user.taskNum != 0:
             if user.action != 0:
-                user.task.updateExplore(user.taskNum - 1, user.continuousNum * (1-self.status), self.cost)
-            elif user.action == 0 and user.continuousNum == user.taskNum:
-                user.task.updateExplore(user.taskNum - 1, user.continuousNum * (1-self.status), self.cost)
+                user.task.updateExplore(user.taskNum - 1, user.currentFeed, cost)
+                user.currentFeed = 0.0
+            elif user.action == 0:
+                user.currentFeed += 1 - self.status
+                if user.continuousNum == user.taskNum:
+                    cost = user.taskReward
+                    user.task.updateExplore(user.taskNum - 1, user.currentFeed, cost)
+                    user.currentFeed = 0.0
 
     def simulate(self):
         Loss = 0
@@ -77,16 +66,19 @@ class fKUBE(Approach):
             tasknum = 0
             for user in self.userList:
                 if self.budget > 0 and user.taskNum == 0:
-                    if user.task.currentArm < user.task.arm_num:
+                    if user.task.currentArm != -1:
                         self.explore(user)
-                        self.calReward(user)
+                        self.checkArm(user)
                     else:
                         self.allocateTask(user)
-                        self.calReward()
+                    self.calReward(user)
                 tasknum += user.taskNum
+
                 user.takeAction(self)
                 self.updateArm(user)
-                Loss += self.checkAction(user)
+                if user.taskNum > 0 and user.action != 0:
+                    Loss += (1-self.status)
+                self.checkAction(user)
                 engaged += user.engagementDegree
             self.averageTaskDistribution.append(tasknum / len(self.userList))
             self.status = engaged / len(self.userList)

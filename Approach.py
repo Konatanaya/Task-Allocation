@@ -6,6 +6,7 @@ import random
 class Approach:
     rate = 1.0
     maxTask = 10
+
     def __init__(self, time, budget):
         self.timestep = time
         self.budget = budget
@@ -14,11 +15,10 @@ class Approach:
         self.loss = [0.0]
         self.engagedRate = [0.0]
         self.beta = 0.1
-        self.cost = 0.0
+        #self.cost = 0.0
 
         self.achievementRate = [0.0]
         self.averageTaskDistribution = [0.0]
-
 
     def checkAction(self, user):
         l = 0.0
@@ -54,11 +54,15 @@ class Approach:
             return l
 
     def calReward(self, user):
-        user.taskReward = math.exp(user.engagementDegree) * (1-self.status)
+        user.taskReward = math.exp(user.engagementDegree-1) * (1-self.status) * user.taskNum
 
     def printClassName(self):
         return self.__class__.__name__
 
+    def calculateReward(self, user):
+        self.budget -= user.continuousNum/user.taskNum * user.taskReward
+        if self.budget <= 0:
+            self.budget = 0
 
 class Control(Approach):
     def __init__(self, time, budget, userList):
@@ -82,29 +86,7 @@ class Control(Approach):
 
 
 
-class EVE1(Approach):
-    def __init__(self, time, budget, userList):
-        Approach.__init__(self, time, budget)
-        self.userList = userList
 
-    def allocateTask(self, user):
-        user.taskNum = 1
-        user.taskReward = user.taskNum * self.rate * (1.0 - self.status)
-
-    def simulate(self):
-        Loss = 0
-        for t in range(1, self.timestep + 1):
-            engaged = 0
-            for user in self.userList:
-                if self.budget > 0 and user.taskNum == 0:
-                    self.allocateTask(user)
-                    self.calReward(user)
-                user.takeAction(self)
-                Loss += self.checkAction(user)
-                engaged += user.engagementDegree
-            self.status = engaged / len(self.userList)
-            self.loss.append(Loss)
-            self.engagedRate.append(self.status)
 
 
 class epsilon_greedy(Approach):
