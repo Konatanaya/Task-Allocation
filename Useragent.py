@@ -79,7 +79,7 @@ class UserAgent:
             ''''
             if approach.budget > 0 and self.taskNum != 0:
                 approach.calculateReward(self)
-            '''
+                '''
             self.continuousNum = 0
 
     def chooseAction(self, newPreference):

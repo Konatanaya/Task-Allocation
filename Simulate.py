@@ -71,8 +71,6 @@ ta = BTA.BTA(timeStep, budget, userlist)
 ta.simulate()
 ratesList.append(ta)
 
-
-
 resetUserList()
 eve = EVE.EVE1(timeStep, budget, userlist)
 eve.simulate()
@@ -82,14 +80,9 @@ resetUserList()
 ucb = fKUBE.fKUBE(timeStep, budget, userlist)
 ucb.simulate()
 ratesList.append(ucb)
-'''
+
 resetUserList()
-eg = Approach.epsilon_greedy(timeStep, budget, userlist, 0.1)
-eg.simulate()
-ratesList.append(eg)
-'''
-resetUserList()
-ef = EpsilonF.epsilon_first(timeStep, budget, userlist, 0.5)
+ef = EpsilonF.epsilon_first(timeStep, budget, userlist, 0.1)
 ef.simulate()
 ratesList.append(ef)
 

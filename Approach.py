@@ -60,7 +60,8 @@ class Approach:
         return self.__class__.__name__
 
     def calculateReward(self, user):
-        self.budget -= user.continuousNum/user.taskNum * user.taskReward
+        user.taskReward *= user.continuousNum/user.taskNum
+        self.budget -= user.taskReward
         if self.budget <= 0:
             self.budget = 0
 

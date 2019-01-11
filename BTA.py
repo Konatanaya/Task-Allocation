@@ -11,7 +11,9 @@ class BTA(Approach):
 
     def allocateTask(self, user):
         prior = user.success / (user.success + user.fail)
-        user.taskNum = math.floor(math.exp(prior*(user.engagementDegree-1))*self.maxTask)
+        ran = random.random()
+        user.taskNum = math.floor(user.engagementDegree*prior*self.maxTask)
+
 
     def checkAction(self, user):
         if user.action == 0:
@@ -46,7 +48,7 @@ class BTA(Approach):
                 tasknum += user.taskNum
 
                 user.takeAction(self)
-                if user.taskNum > 0 and user.action != 0:
+                if user.action != 0:
                     Loss += (1-self.status)
                 self.checkAction(user)
                 engaged += user.engagementDegree

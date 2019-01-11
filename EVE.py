@@ -44,7 +44,7 @@ class EVE1(Approach):
                 tasknum += user.taskNum
 
                 user.takeAction(self)
-                if user.taskNum > 0 and user.action != 0:
+                if user.action != 0:
                     Loss += (1-self.status)
                 self.checkAction(user)
                 engaged += user.engagementDegree

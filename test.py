@@ -26,9 +26,9 @@ def drawPlot():
 
 a = 2
 b = 1
-print(a/(a+b))
-x = np.arange(0.01, 1, 0.01)
-y = beta.pdf(x, a, b)
+
+x = np.linspace(-1, 1, 100)
+y = np.exp(x)
 plt.plot(x, y)
 plt.title('Beta: a=%.1f,b=%.1f' % (a, b))
 plt.xlabel('x')
