@@ -17,7 +17,7 @@ class fKUBE(Approach):
     def generateTaskNum(self, user):
         value = []
         for index in range(user.task.arm_num):
-            v = user.task.values[index] + math.sqrt(np.log(sum(user.task.counts)/user.task.counts[index]))
+            v = user.task.values[index] + math.sqrt(math.log(sum(user.task.counts)/user.task.counts[index]))
             value.append(v / (user.task.costs[index]+0.001))
         return np.argmax(value)+1
 

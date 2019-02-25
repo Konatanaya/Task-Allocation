@@ -5,7 +5,7 @@ import random
 
 class Approach:
     rate = 1.0
-    maxTask = 10
+    maxTask = 5
 
     def __init__(self, time, budget):
         self.timestep = time
@@ -19,6 +19,11 @@ class Approach:
 
         self.achievementRate = [0.0]
         self.averageTaskDistribution = [0.0]
+
+        self.name = ""
+
+    def setLabelName(self,name):
+        self.name= name
 
     def checkAction(self, user):
         l = 0.0
@@ -54,7 +59,14 @@ class Approach:
             return l
 
     def calReward(self, user):
-        user.taskReward = math.exp(user.engagementDegree-1) * (1-self.status) * user.taskNum
+        if self.budget <= 0:
+            user.taskReward = 0
+        else:
+            if user.taskNum != 0:
+                r = (1-self.status) * (1-user.engagementDegree) * (user.taskNum + math.log(user.taskNum))
+                user.taskReward = min(r, self.budget)
+            else:
+                user.taskReward = 0
 
     def printClassName(self):
         return self.__class__.__name__

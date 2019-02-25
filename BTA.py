@@ -5,32 +5,54 @@ from Approach import Approach
 from Useragent import UserAgent
 
 class BTA(Approach):
-    def __init__(self, time, budget, userList):
+    def __init__(self, time, budget, userList, gamma):
         Approach.__init__(self, time, budget)
+        self.gamma = gamma
         self.userList = userList
 
     def allocateTask(self, user):
-        prior = user.success / (user.success + user.fail)
-        ran = random.random()
-        user.taskNum = math.floor(user.engagementDegree*prior*self.maxTask)
+        num = user.defaultDif
+        for i in (range(user.defaultDif,self.maxTask+1)):
+            r_base = (1-self.status) * (1-user.engagementDegree) * (i + math.log(i))
+            est = user.lower / math.pow(self.gamma, i-1)
+            if est < r_base:
+                num = i
+                break
+        if num == 0:
+            num = 1
+        user.taskNum = num
 
+    def calculateReward(self, user):
+        if self.budget <= 0:
+            user.taskReward = 0
+        else:
+            if user.taskNum != 0:
+                r_base = (1-self.status) * (1-user.engagementDegree) * (user.taskNum + math.log(user.taskNum))
+                r = min(user.lower/math.pow(self.gamma, user.taskNum - 1), r_base)
+                user.taskReward = min(r, self.budget)
+            else:
+                user.taskReward = 0
 
     def checkAction(self, user):
         if user.action == 0:
             user.engagementDegree += self.beta * (1 - user.engagementDegree)
 
             if user.continuousNum == user.taskNum:
+                temp = user.taskReward * math.pow(self.gamma, user.taskNum -1)
+                temp1 = min(user.lower, temp)
+                user.lower = temp1
+                if user.taskNum > user.defaultDif:
+                    user.defaultDif = user.taskNum
                 user.continuousNum = 0
                 user.taskNum = 0
-                user.success += 1
+                user.success = 1
                 self.budget -= user.taskReward
                 if self.budget <= 0:
                     self.budget = 0
                 user.taskReward = 0
         else:
-
             if user.taskNum != 0:
-                user.fail += 1
+                user.success = 0
             user.engagementDegree += self.beta * (0 - user.engagementDegree)
             user.taskNum = 0
             user.taskReward = 0
@@ -44,7 +66,7 @@ class BTA(Approach):
             for user in self.userList:
                 if self.budget > 0 and user.taskNum == 0:
                     self.allocateTask(user)
-                    self.calReward(user)
+                    self.calculateReward(user)
                 tasknum += user.taskNum
 
                 user.takeAction(self)

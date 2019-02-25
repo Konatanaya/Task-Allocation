@@ -4,7 +4,7 @@ from Useragent import UserAgent
 import Approach, BTA, EpsilonF,fKUBE,EVE
 
 timeStep = 500
-budget = 10000
+budget = 4000
 userlist = set()
 ratesList = []
 
@@ -23,18 +23,20 @@ def resetUserList():
 def drawPlot():
     mark = ['-o','-*','-v','-+','-x','-']
     #mark = ['-', ':', '-.', '_', '-x']
+    size = 18
     x = np.linspace(0, timeStep+1, timeStep+1)
-    fig = plt.figure()
-    plt.subplot(1,3,1)
+    fig = plt.figure(figsize=(8,6))
+    #plt.subplot(1,2)
+
     for index in range(len(ratesList)):
         y = ratesList[index].engagedRate
-        plt.plot(x, y, mark[index],label=ratesList[index].printClassName())
-    plt.legend(loc='lower right')
+        plt.plot(x, y, mark[index],label=ratesList[index].name)
+    plt.legend(loc='upper right',fontsize=size)
+    plt.xticks(fontsize=size)
+    plt.yticks(fontsize=size)
     #plt.axis([0,timeStep,0.0,1.0])
     #plt.ylim(0,1.0)
-    plt.xlabel("Time step")
-    plt.ylabel("Proportion of participating users")
-
+    '''
     plt.subplot(1,3,2)
     for index in range(len(ratesList)):
         y = ratesList[index].loss
@@ -52,9 +54,10 @@ def drawPlot():
     plt.legend(loc='lower right')
     # plt.axis([0,timeStep,0.0,1.0])
     # plt.ylim(0,1.0)
-    plt.xlabel("Time step")
-    plt.ylabel("Loss in total")
-    plt.suptitle("Overall Budget = 10000")
+    '''
+    plt.xlabel("Time steps",fontsize=size)
+    plt.ylabel("AED",fontsize=size)
+    plt.suptitle("Overall Budget = "+str(budget),fontsize=size)
     plt.show()
 
 
@@ -62,28 +65,41 @@ def drawPlot():
 initUserList()
 ''''
 resetUserList()
-control = Approach.Control(timeStep, budget, userlist)
+control = Approach.Control(timeStep, budget, userlist
 control.simulate()
 #ratesList.append(control)
+
+for i in range(5):
+    resetUserList()
+    ta = BTA.BTA(timeStep, budget, userlist, 0.1+0.2*i)
+    k = 0.1+0.2*i
+    ta.setLabelName("γ="+str(round(0.1+0.2*i,1)))
+    ta.simulate()
+    ratesList.append(ta)
 '''
+
 resetUserList()
-ta = BTA.BTA(timeStep, budget, userlist)
+ta = BTA.BTA(timeStep, budget, userlist, 0.9)
+ta.setLabelName("ATG, γ="+str(0.9))
 ta.simulate()
 ratesList.append(ta)
 
 resetUserList()
 eve = EVE.EVE1(timeStep, budget, userlist)
+eve.setLabelName('EVE-1')
 eve.simulate()
 ratesList.append(eve)
 
 resetUserList()
 ucb = fKUBE.fKUBE(timeStep, budget, userlist)
+ucb.setLabelName(ucb.printClassName())
 ucb.simulate()
 ratesList.append(ucb)
 
 resetUserList()
 ef = EpsilonF.epsilon_first(timeStep, budget, userlist, 0.1)
+ef.setLabelName("ε-first")
 ef.simulate()
 ratesList.append(ef)
-
+''''''
 drawPlot()
