@@ -27,13 +27,13 @@ def drawPlot():
 a = 2
 b = 1
 
-x = np.linspace(1, 5, 5)
-y = np.exp(-0.1*(x-1))
+x = np.linspace(2, 10, 10)
+y = np.power(1/x,1/(x-1))
 plt.plot(x, y, label="e")
-y = np.power(0.9,x-1)
-plt.plot(x, y,label="6")
 plt.title('Beta: a=%.1f,b=%.1f' % (a, b))
 plt.legend(loc='lower right')
 plt.xlabel('x')
 plt.ylabel('density')
 plt.show()
+
+

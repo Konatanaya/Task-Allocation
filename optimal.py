@@ -10,7 +10,17 @@ class EVE1(Approach):
         self.userList = userList
 
     def allocateTask(self, user):
-        user.taskNum = 1
+        num = 1
+        for index in range(2, self.maxTask + 1):
+            if user.gamma < math.pow(1 / index, 1 / (index - 1)):
+                break
+            else:
+                num = index
+        r_upper = (1 - self.status) * (num + math.log(num))
+        r_lower = user.pre_dif / math.pow(user.gamma, num - 1)
+        r = min(r_upper, r_lower)
+        user.taskNum = num
+        user.taskReward = r
 
     def checkAction(self, user):
         if user.action == 0:
@@ -37,7 +47,6 @@ class EVE1(Approach):
             for user in self.userList:
                 if self.budget > 0 and user.taskNum == 0:
                     self.allocateTask(user)
-                    self.calReward(user)
                 tasknum += user.taskNum
 
                 user.takeAction(self)

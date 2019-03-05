@@ -5,7 +5,7 @@ import random
 
 class Approach:
     rate = 1.0
-    maxTask = 5
+    maxTask = 10
 
     def __init__(self, time, budget):
         self.timestep = time
@@ -63,7 +63,7 @@ class Approach:
             user.taskReward = 0
         else:
             if user.taskNum != 0:
-                r = (1-self.status) * (1-user.engagementDegree) * (user.taskNum + math.log(user.taskNum))
+                r = (1-self.status) * (user.taskNum + math.log(user.taskNum))
                 user.taskReward = min(r, self.budget)
             else:
                 user.taskReward = 0

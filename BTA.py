@@ -9,50 +9,74 @@ class BTA(Approach):
         Approach.__init__(self, time, budget)
         self.gamma = gamma
         self.userList = userList
+        self.explore = 10
+        self.rate = 0.1
 
     def allocateTask(self, user):
         num = user.defaultDif
-        for i in (range(user.defaultDif,self.maxTask+1)):
-            r_base = (1-self.status) * (1-user.engagementDegree) * (i + math.log(i))
-            est = user.lower / math.pow(self.gamma, i-1)
-            if est < r_base:
-                num = i
-                break
-        if num == 0:
+        if user.count_in < self.explore:
             num = 1
-        user.taskNum = num
-
-    def calculateReward(self, user):
-        if self.budget <= 0:
-            user.taskReward = 0
+            user.count_in += 1
         else:
-            if user.taskNum != 0:
-                r_base = (1-self.status) * (1-user.engagementDegree) * (user.taskNum + math.log(user.taskNum))
-                r = min(user.lower/math.pow(self.gamma, user.taskNum - 1), r_base)
-                user.taskReward = min(r, self.budget)
-            else:
-                user.taskReward = 0
+            for index in range(user.defaultDif+1, self.maxTask+1):
+                if user.e_gamma < math.pow(1/index, 1/(index-1)):
+                    break
+                else:
+                    num = index
+
+        r_upper = (1 - self.status) * (num + math.log(num))
+        r_lower = user.pre_dif_upper / math.pow(user.e_gamma,num-1)
+        if r_lower > r_upper and num>1:
+            n_e = math.floor(math.log(user.pre_dif_upper/r_upper, user.e_gamma))
+            if n_e < num:
+                num = n_e
+
+        r = min(r_upper, r_lower)
+        if r == r_upper:
+            user.flag = 0
+        else:
+            user.flag = 1
+        user.taskNum = num
+        user.taskReward = r
+        #self.budget -= user.taskReward
 
     def checkAction(self, user):
+        n = 0
+        r = 0
         if user.action == 0:
             user.engagementDegree += self.beta * (1 - user.engagementDegree)
-
             if user.continuousNum == user.taskNum:
-                temp = user.taskReward * math.pow(self.gamma, user.taskNum -1)
-                temp1 = min(user.lower, temp)
-                user.lower = temp1
-                if user.taskNum > user.defaultDif:
-                    user.defaultDif = user.taskNum
-                user.continuousNum = 0
-                user.taskNum = 0
-                user.success = 1
+                if user.taskNum > 1:
+                    user.defaultDif = min(max(user.taskNum + 1, user.defaultDif), self.maxTask)
+                    if user.flag == 0:
+                        user.pre_dif_upper = max(user.pre_dif_upper * (1 - self.rate), user.pre_dif_lower)
+                        user.e_gamma = min(1.0, user.e_gamma * (1 + self.rate))
+                    else:
+                        user.pre_dif_upper = max(user.pre_dif_upper*(1-self.rate), user.pre_dif_lower)
+                        user.e_gamma = min(1.0, user.e_gamma * (1 + self.rate))
+                elif user.taskNum == 1:
+                    user.pre_dif_upper = min(user.pre_dif_upper, user.taskReward)
+
                 self.budget -= user.taskReward
                 if self.budget <= 0:
                     self.budget = 0
+                user.continuousNum = 0
+                user.taskNum = 0
                 user.taskReward = 0
         else:
-            if user.taskNum != 0:
-                user.success = 0
+
+            if user.taskNum > 1:
+                if user.flag == 0:
+                    user.e_gamma = min(1.0, user.e_gamma * (1 - self.rate))
+                    #user.pre_dif_lower = max(user.pre_dif_upper, user.pre_dif_lower * (1 + self.rate))
+                else:
+                    #user.pre_dif_lower = max(user.pre_dif_upper, user.pre_dif_lower*(1+self.rate))
+                    user.e_gamma= max(0.0, user.e_gamma * (1 - self.rate))
+
+            elif user.taskNum == 1:
+                user.pre_dif_lower = max(user.pre_dif_lower, user.taskReward)
+
+            self.budget += user.taskReward
             user.engagementDegree += self.beta * (0 - user.engagementDegree)
             user.taskNum = 0
             user.taskReward = 0
@@ -66,7 +90,6 @@ class BTA(Approach):
             for user in self.userList:
                 if self.budget > 0 and user.taskNum == 0:
                     self.allocateTask(user)
-                    self.calculateReward(user)
                 tasknum += user.taskNum
 
                 user.takeAction(self)
@@ -74,6 +97,7 @@ class BTA(Approach):
                     Loss += (1-self.status)
                 self.checkAction(user)
                 engaged += user.engagementDegree
+
             self.averageTaskDistribution.append(tasknum / len(self.userList))
             self.status = engaged / len(self.userList)
             self.loss.append(Loss)
