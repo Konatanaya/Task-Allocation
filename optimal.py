@@ -8,6 +8,7 @@ class EVE1(Approach):
     def __init__(self, time, budget, userList):
         Approach.__init__(self, time, budget)
         self.userList = userList
+        self.status=0
 
     def allocateTask(self, user):
         num = 1

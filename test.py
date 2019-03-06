@@ -23,7 +23,8 @@ def drawPlot():
     plt.ylabel("Proportion of participating users")
     plt.show()
 
-
+for index in range(5,1,-1):
+    print(index)
 a = 2
 b = 1
 

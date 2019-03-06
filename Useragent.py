@@ -36,10 +36,7 @@ class UserAgent:
         self.pre_dif_lower = 0.0
         self.pre_dif_upper = 1.0
         self.gamma = random.random()
-        self.e_gamma = 0.5
-        self.e_gamma_lower = 0.0
-        self.flag = 0
-        self.est_new = 10
+        self.e_gamma = 1.0
         self.count_in = 0
 
         self.successR = []

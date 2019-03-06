@@ -26,17 +26,17 @@ def drawPlot():
     size = 18
     x = np.linspace(0, timeStep+1, timeStep+1)
     fig = plt.figure(figsize=(8,6))
-    plt.subplot(1,3,1)
+    #plt.subplot(1,3,1)
 
     for index in range(len(ratesList)):
         y = ratesList[index].engagedRate
         plt.plot(x, y, mark[index],label=ratesList[index].name)
-    plt.legend(loc='upper right',fontsize=size-4)
+    plt.legend(loc='lower right',fontsize=size-4)
     plt.xticks(fontsize=size)
     plt.yticks(fontsize=size)
     #plt.axis([0,timeStep,0.0,1.0])
     #plt.ylim(0,1.0)
-
+    ''''
     plt.subplot(1,3,2)
     for index in range(len(ratesList)):
         y = ratesList[index].loss
@@ -54,9 +54,9 @@ def drawPlot():
     plt.legend(loc='lower right')
     # plt.axis([0,timeStep,0.0,1.0])
     # plt.ylim(0,1.0)
-
+'''
     plt.xlabel("Time steps",fontsize=size)
-    plt.ylabel("AED",fontsize=size)
+    plt.ylabel("System Status",fontsize=size)
     plt.suptitle("Overall Budget = "+str(budget),fontsize=size)
     plt.show()
 

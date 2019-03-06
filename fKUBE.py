@@ -9,6 +9,7 @@ class fKUBE(Approach):
         self.userList = userList
         self.totalCount = 0
         self.exploreStatus = 1
+        self.status = 0
 
     def allocateTask(self, user):
         user.taskNum = self.generateTaskNum(user)
