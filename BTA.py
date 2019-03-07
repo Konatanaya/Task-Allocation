@@ -15,27 +15,18 @@ class BTA(Approach):
 
     def allocateTask(self, user):
         num = user.defaultDif
-        if user.count_in < self.explore:
+        if user.count_in < self.explore or user.defaultDif == 1:
             num = 1
             user.count_in += 1
         else:
-            #for index in range(user.defaultDif, 2,-1):
-                if user.e_gamma < math.pow(1/num, 1/(num-1)):
-                    num -= 1
-                    ''''
-                else:
-                    num = index
-                    break
-                '''
+            if user.e_gamma < math.pow(1/num, 1/(num-1)):
+                num -= 1
+            elif user.e_gamma >= num/(num+1):
+                num += 1
+
 
         r_upper = (1 - self.status) * (num + math.log(num))
         r_lower = user.pre_dif_upper / math.pow(user.e_gamma,num-1)
-        ''''
-        if r_lower > r_upper and num>1:
-            n_e = math.floor(math.log(user.pre_dif_upper/r_upper, user.e_gamma))
-            if n_e < num:
-                num = n_e
-'''
         r = min(r_upper, r_lower)
         if r == r_upper:
             user.flag = 0
@@ -43,7 +34,6 @@ class BTA(Approach):
             user.flag = 1
         user.taskNum = num
         user.taskReward = r
-        #self.budget -= user.taskReward
 
     def checkAction(self, user):
         n = 0
@@ -52,15 +42,12 @@ class BTA(Approach):
             user.engagementDegree += self.beta * (1 - user.engagementDegree)
             if user.continuousNum == user.taskNum:
                 user.defaultDif = min(max(user.taskNum + 1, user.defaultDif), self.maxTask)
+                #user.defaultDif = user.taskNum + 1
+                #user.defaultDif = min(user.taskNum + 1, self.maxTask)
                 if user.taskNum > 1:
                     #user.defaultDif = min(max(user.taskNum + 1, user.defaultDif), self.maxTask)
-                    if user.flag == 0:
-                        #user.pre_dif_upper = max(user.pre_dif_upper * (1 - self.rate), user.pre_dif_lower)
-                        user.e_gamma = min(1.0, user.e_gamma * (1 + self.rate))
-                    else:
-                        # user.defaultDif = min(max(user.taskNum + 1, user.defaultDif), self.maxTask)
-                        #user.pre_dif_upper = max(user.pre_dif_upper*(1 - self.rate), user.pre_dif_lower)
-                        user.e_gamma = min(1.0, user.e_gamma * (1 + self.rate))
+                    user.pre_dif_upper = max(user.pre_dif_upper * (1 - self.rate), user.pre_dif_lower)
+                    user.e_gamma = min(1.0, user.e_gamma * (1 + self.rate))
                 elif user.taskNum == 1:
                     user.pre_dif_upper = min(user.pre_dif_upper, user.taskReward)
 
@@ -71,22 +58,15 @@ class BTA(Approach):
                 user.taskNum = 0
                 user.taskReward = 0
         else:
-
+            #user.defaultDif = max(min(user.taskNum - 1, user.defaultDif), 2)
+            #user.defaultDif = max(user.taskNum-1, 1)
             if user.taskNum > 1:
-                if user.flag == 0:
-                    user.e_gamma = max(0.0, user.e_gamma * (1 - self.rate))
-                    #user.e_gamma = min(1.0, user.e_gamma * (1 + self.rate))
-                    #user.pre_dif_lower = max(user.pre_dif_upper, user.pre_dif_lower * (1 + self.rate))
-                else:
-                    #user.pre_dif_lower = max(user.pre_dif_upper, user.pre_dif_lower * (1 + self.rate))
-                    user.defaultDif = max(user.taskNum - 1, 2)
-                    user.pre_dif_upper = max(user.pre_dif_upper * (1 - self.rate), user.pre_dif_lower)
-                    user.e_gamma = max(0.0, user.e_gamma * (1 - self.rate))
+                user.e_gamma = max(0.0, user.e_gamma * (1 - self.rate))
 
             elif user.taskNum == 1:
                 user.pre_dif_lower = max(user.pre_dif_lower, user.taskReward)
 
-            self.budget += user.taskReward
+            #self.budget += user.taskReward
             user.engagementDegree += self.beta * (0 - user.engagementDegree)
             user.taskNum = 0
             user.taskReward = 0

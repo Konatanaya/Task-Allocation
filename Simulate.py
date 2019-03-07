@@ -4,7 +4,7 @@ from Useragent import UserAgent
 import Approach, BTA, EpsilonF,fKUBE,EVE,optimal
 
 timeStep = 500
-budget = 8000
+budget = 10000
 userlist = set()
 ratesList = []
 
@@ -26,7 +26,7 @@ def drawPlot():
     size = 18
     x = np.linspace(0, timeStep+1, timeStep+1)
     fig = plt.figure(figsize=(8,6))
-    #plt.subplot(1,3,1)
+    plt.subplot(1,2,1)
 
     for index in range(len(ratesList)):
         y = ratesList[index].engagedRate
@@ -46,15 +46,15 @@ def drawPlot():
     # plt.ylim(0,1.0)
     plt.xlabel("Time step")
     plt.ylabel("Average Difficulty of Task")
-
-    plt.subplot(1, 3, 3)
+'''
+    plt.subplot(1, 2, 2)
     for index in range(len(ratesList)):
         y = ratesList[index].averageTaskDistribution
         plt.plot(x, y, mark[index], label=ratesList[index].printClassName())
     plt.legend(loc='lower right')
     # plt.axis([0,timeStep,0.0,1.0])
     # plt.ylim(0,1.0)
-'''
+
     plt.xlabel("Time steps",fontsize=size)
     plt.ylabel("System Status",fontsize=size)
     plt.suptitle("Overall Budget = "+str(budget),fontsize=size)

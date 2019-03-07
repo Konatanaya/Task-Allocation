@@ -5,7 +5,7 @@ import random
 
 class Approach:
     rate = 1.0
-    maxTask = 10
+    maxTask = 5
 
     def __init__(self, time, budget):
         self.timestep = time

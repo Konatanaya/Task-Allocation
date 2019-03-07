@@ -6,7 +6,7 @@ epsilon = 0.1
 
 
 class task:
-    arm_num =10
+    arm_num =5
 
     def __init__(self):
         self.values = [0.0 for _ in range(self.arm_num)]
@@ -38,7 +38,7 @@ class UserAgent:
         self.gamma = random.random()
         self.e_gamma = 1.0
         self.count_in = 0
-
+        self.flag_c = 0
         self.successR = []
         self.failR = []
         for index in range(preNum):
@@ -59,6 +59,7 @@ class UserAgent:
         self.pre_dif_upper = 1.0
         self.e_gamma = 0.5
         self.count_in = 0
+        self.flag = 0
 
     def printID(self, id1):
         self.id = id1
