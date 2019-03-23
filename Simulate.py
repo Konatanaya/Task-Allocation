@@ -4,7 +4,7 @@ from Useragent import UserAgent
 import Approach, BTA, EpsilonF,fKUBE,EVE,optimal
 
 timeStep = 500
-budget = 10000
+budget = 6000
 userlist = set()
 ratesList = []
 
@@ -21,33 +21,37 @@ def resetUserList():
 
 
 def drawPlot():
-    mark = ['-o','-*','-v','-+','-x','-']
-    #mark = ['-', ':', '-.', '_', '-x']
+    mark = ['-o','-s','-v','-D','-^','-s']
     size = 18
-    x = np.linspace(0, timeStep+1, timeStep+1)
-    fig = plt.figure(figsize=(8,6))
-    plt.subplot(1,2,1)
+    x = np.linspace(0, timeStep+1, 25+1)
+    fig = plt.figure(figsize=(10,8))
+    #plt.subplot(1,2,1)
 
     for index in range(len(ratesList)):
         y = ratesList[index].engagedRate
-        plt.plot(x, y, mark[index],label=ratesList[index].name)
-    plt.legend(loc='lower right',fontsize=size-4)
+        plt.plot(x, y, mark[index],label=ratesList[index].name, ms=10)
+    plt.legend(loc='upper right',fontsize=size-4)
     plt.xticks(fontsize=size)
     plt.yticks(fontsize=size)
-    #plt.axis([0,timeStep,0.0,1.0])
-    #plt.ylim(0,1.0)
-    ''''
-    plt.subplot(1,3,2)
+    plt.xlabel("Time steps", fontsize=size)
+    plt.ylabel("Average engagement degree", fontsize=size)
+    plt.suptitle("Overall Budget = " + str(budget), fontsize=size)
+    plt.show()
+
+    fig = plt.figure(figsize=(10,8))
     for index in range(len(ratesList)):
         y = ratesList[index].loss
-        plt.plot(x, y, mark[index], label=ratesList[index].printClassName())
-    plt.legend(loc='lower right')
+        plt.plot(x, y, mark[index], label=ratesList[index].name, ms=10)
+    plt.legend(loc='upper right',fontsize=size-4)
     # plt.axis([0,timeStep,0.0,1.0])
     # plt.ylim(0,1.0)
-    plt.xlabel("Time step")
-    plt.ylabel("Average Difficulty of Task")
-'''
-    plt.subplot(1, 2, 2)
+    plt.xticks(fontsize=size)
+    plt.yticks(fontsize=size)
+    plt.xlabel("Time steps", fontsize=size)
+    plt.ylabel("The number of engaged users", fontsize=size)
+    plt.show()
+    #plt.subplot(1, 2, 2)
+    '''
     for index in range(len(ratesList)):
         y = ratesList[index].averageTaskDistribution
         plt.plot(x, y, mark[index], label=ratesList[index].printClassName())
@@ -59,7 +63,7 @@ def drawPlot():
     plt.ylabel("System Status",fontsize=size)
     plt.suptitle("Overall Budget = "+str(budget),fontsize=size)
     plt.show()
-
+    '''
 
 
 initUserList(8)
@@ -90,32 +94,33 @@ for i in range(5):
 '''
 resetUserList()
 ta = BTA.BTA(timeStep, budget, userlist, 0.9)
-ta.setLabelName("ATG, γ="+str(0.9))
+ta.setLabelName("MDP-IE")
 ta.simulate()
 ratesList.append(ta)
 
 resetUserList()
 eve = EVE.EVE1(timeStep, budget, userlist)
-eve.setLabelName('EVE-1')
+eve.setLabelName('One-off')
 eve.simulate()
 ratesList.append(eve)
 
 resetUserList()
-optimal = optimal.EVE1(timeStep, budget, userlist)
+optimal = optimal.Optimal(timeStep, budget, userlist)
 optimal.setLabelName('Optimal')
 optimal.simulate()
 ratesList.append(optimal)
 
 resetUserList()
 ucb = fKUBE.fKUBE(timeStep, budget, userlist)
-ucb.setLabelName(ucb.printClassName())
+ucb.setLabelName("fKUBE+DBP-UCB")
 ucb.simulate()
 ratesList.append(ucb)
-'''
+
 resetUserList()
 ef = EpsilonF.epsilon_first(timeStep, budget, userlist, 0.1)
-ef.setLabelName("ε-first")
+ef.setLabelName("ε-first+DBP-UCB")
 ef.simulate()
 ratesList.append(ef)
-'''
+
 drawPlot()
+

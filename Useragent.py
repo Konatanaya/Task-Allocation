@@ -21,12 +21,27 @@ class task:
     def updateCount(self, arm):
         self.counts[arm] += 1
 
+class pricing:
+    arm_num = 10
+
+    def __init__(self):
+        self.price = [i*0.5 for i in range(1,11)]
+        self.values = [0.0 for _ in range(self.arm_num)]
+        self.counts = [1 for _ in range(self.arm_num)]
+
+    def updateExplore(self, arm, reward):
+        self.values[arm] += (reward - self.values[arm]) / self.counts[arm]
+
+    def updateCount(self, arm):
+        self.counts[arm] += 1
+
 class UserAgent:
     def __init__(self, id, preNum):
         self.id = id
         self.preference = []
         self.action = -1
         self.task = task()
+        self.pricing = pricing()
         self.currentFeed = 0.0
         self.continuousNum = 0
         self.taskNum = 0
@@ -53,13 +68,13 @@ class UserAgent:
         self.taskReward = 0.0
         self.engagementDegree = 0.0
         self.task = task()
+        self.pricing = pricing()
         self.currentFeed = 0.0
         self.defaultDif = 1
         self.pre_dif_lower = 0.0
         self.pre_dif_upper = 1.0
         self.e_gamma = 0.5
         self.count_in = 0
-        self.flag = 0
 
     def printID(self, id1):
         self.id = id1
@@ -77,24 +92,9 @@ class UserAgent:
         if self.action == 0 and self.taskNum != 0:
             self.continuousNum += 1
         else:
-            if approach.budget > 0 and self.taskNum != 0:
-                approach.calculateReward(self)
-
             self.continuousNum = 0
 
     def chooseAction(self, newPreference):
-        ran = np.random.random()
-        '''
-        if ran < 0.1:
-            s = sum(newPreference)
-            rand = random.random()
-            fenzi = 0.0
-            for index in newPreference:
-                fenzi += index
-                if rand < fenzi / s:
-                    action = newPreference.index(index)
-        else:
-        '''
         action = np.argmax(newPreference)
         return action
 

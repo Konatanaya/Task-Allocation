@@ -12,6 +12,7 @@ class Approach:
         self.budget = budget
         self.budgetPerTime = budget
         self.status = 0.0
+        self.user_num = 0
         self.loss = [0.0]
         self.engagedRate = [0.0]
         self.beta = 0.1
@@ -21,6 +22,10 @@ class Approach:
         self.averageTaskDistribution = [0.0]
 
         self.name = ""
+
+        self.end = 0
+        self.offer = 0
+        self.accepted = 0
 
     def setLabelName(self,name):
         self.name= name
@@ -68,6 +73,10 @@ class Approach:
             else:
                 user.taskReward = 0
 
+    def conclude(self):
+        success = self.accepted
+        #print(self.name+" "+str(self.offer)+" "+str(self.accepted)+" "+str(success)+" "+str(self.end))
+
     def printClassName(self):
         return self.__class__.__name__
 
@@ -76,6 +85,10 @@ class Approach:
         self.budget -= user.taskReward
         if self.budget <= 0:
             self.budget = 0
+    def updateList(self,t):
+        if t%20 == 0:
+            self.loss.append(self.user_num)
+            self.engagedRate.append(self.status)
 
 class Control(Approach):
     def __init__(self, time, budget, userList):
@@ -144,6 +157,8 @@ class epsilon_greedy(Approach):
             self.status = engaged / len(self.userList)
             self.loss.append(Loss)
             self.engagedRate.append(self.status)
+
+
 
 
 

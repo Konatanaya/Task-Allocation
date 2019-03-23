@@ -8,7 +8,7 @@ class EVE1(Approach):
     def __init__(self, time, budget, userList):
         Approach.__init__(self, time, budget)
         self.userList = userList
-        self.status
+        self.status = 0
 
     def allocateTask(self, user):
         user.taskNum = 1
@@ -20,6 +20,7 @@ class EVE1(Approach):
             if user.continuousNum == user.taskNum:
                 user.continuousNum = 0
                 user.taskNum = 0
+                self.accepted+=1
                 self.budget -= user.taskReward
                 if self.budget <= 0:
                     self.budget = 0
@@ -29,24 +30,30 @@ class EVE1(Approach):
             user.taskNum = 0
             user.taskReward = 0
 
+    def calReward(self, user):
+        r = (1 - self.status)
+        user.taskReward = min( r,user.pre_dif+0.1)
 
     def simulate(self):
         Loss = 0
         for t in range(1, self.timestep + 1):
             engaged = 0
             tasknum = 0
+            self.user_num = 0
             for user in self.userList:
                 if self.budget > 0 and user.taskNum == 0:
                     self.allocateTask(user)
                     self.calReward(user)
+                    self.offer += 1
                 tasknum += user.taskNum
 
                 user.takeAction(self)
-                if user.action != 0:
-                    Loss += (1-self.status)
+                if user.action == 0:
+                    self.user_num += 1
                 self.checkAction(user)
                 engaged += user.engagementDegree
-            self.averageTaskDistribution.append(tasknum / len(self.userList))
             self.status = engaged / len(self.userList)
-            self.loss.append(Loss)
-            self.engagedRate.append(self.status)
+            self.updateList(t)
+            if self.budget <= 0 and self.end == 0:
+                self.end = t
+        self.conclude()

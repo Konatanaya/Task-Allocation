@@ -1,10 +1,7 @@
 import math
-import numpy as np
-import random
 from Approach import Approach
-from Useragent import UserAgent
 
-class EVE1(Approach):
+class Optimal(Approach):
     def __init__(self, time, budget, userList):
         Approach.__init__(self, time, budget)
         self.userList = userList
@@ -31,6 +28,7 @@ class EVE1(Approach):
                 user.continuousNum = 0
                 user.taskNum = 0
                 self.budget -= user.taskReward
+                self.accepted += 1
                 if self.budget <= 0:
                     self.budget = 0
                 user.taskReward = 0
@@ -45,17 +43,20 @@ class EVE1(Approach):
         for t in range(1, self.timestep + 1):
             engaged = 0
             tasknum = 0
+            self.user_num = 0
             for user in self.userList:
                 if self.budget > 0 and user.taskNum == 0:
                     self.allocateTask(user)
+                    self.offer += 1
                 tasknum += user.taskNum
 
                 user.takeAction(self)
-                if user.action != 0:
-                    Loss += (1-self.status)
+                if user.action == 0:
+                    self.user_num += 1
                 self.checkAction(user)
                 engaged += user.engagementDegree
-            self.averageTaskDistribution.append(tasknum / len(self.userList))
             self.status = engaged / len(self.userList)
-            self.loss.append(Loss)
-            self.engagedRate.append(self.status)
+            self.updateList(t)
+            if self.budget <= 0 and self.end == 0:
+                self.end = t
+        self.conclude()

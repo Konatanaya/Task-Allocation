@@ -12,19 +12,37 @@ class epsilon_first(Approach):
         self.exploreBudget = self.budget * self.epsilon
         self.budget -= self.exploreBudget
         self.exploreStatus = 1
+        self.count = -1
+        self.user_num = 0
 
     def allocateTask(self, user):
         user.taskNum = self.generateTaskNum(user)
         user.task.updateCount(user.taskNum - 1)
 
     def explore(self, user):
-        user.taskNum = user.task.currentArm
+        user.taskNum = user.task.currentArm + 1
         user.task.updateCount(user.taskNum - 1)
+
+    def calReward(self,user,t):
+        new_value = []
+        for index in range(user.pricing.arm_num):
+            if sum(user.pricing.counts)==0:
+                F_n = user.pricing.values[index]
+            else:
+                F_n = user.pricing.values[index]+math.sqrt(2*math.log(t)/user.pricing.counts[index])
+            f = self.budget / (200 * user.pricing.price[index])
+            new_value.append(min(f,F_n))
+        self.count = np.argmax(new_value)
+        user.taskReward = user.pricing.price[self.count]
+        #user.pricing.counts[self.count] += 1
 
     def generateTaskNum(self, user):
         value = []
         for index in range(user.task.arm_num):
-            value.append(user.task.values[index] / (user.task.costs[index]+0.001))
+            if user.task.costs[index]==0:
+                value.append(0)
+            else:
+                value.append(user.task.values[index] / (user.task.costs[index]))
         return np.argmax(value)+1
 
     def checkArm(self, user):
@@ -60,36 +78,42 @@ class epsilon_first(Approach):
             if user.action != 0:
                 user.task.updateExplore(user.taskNum - 1, user.currentFeed, cost)
                 user.currentFeed = 0.0
+                user.pricing.updateExplore(self.count, 0)
             elif user.action == 0:
-                user.currentFeed += 1 - self.status
+                user.currentFeed += 1
                 if user.continuousNum == user.taskNum:
+                    self.accepted += 1
                     cost = user.taskReward
                     user.task.updateExplore(user.taskNum - 1, user.currentFeed, cost)
                     user.currentFeed = 0.0
+                    user.pricing.updateExplore(self.count, 1)
 
     def simulate(self):
         Loss = 0
         for t in range(1, self.timestep + 1):
             engaged = 0
             tasknum = 0
+            self.user_num = 0
             for user in self.userList:
                 if self.exploreStatus == 1:
                     if self.exploreBudget>0 and user.taskNum == 0:
                         self.checkArm(user)
                         self.explore(user)
-                        self.calReward(user)
+                        self.calReward(user,t)
                 else:
                     if self.budget > 0 and user.taskNum == 0:
                         self.allocateTask(user)
-                        self.calReward(user)
+                        self.calReward(user,t)
                 tasknum += user.taskNum
                 user.takeAction(self)
                 self.updateArm(user)
-                if user.action != 0:
-                    Loss += (1 - self.status)
+                if user.action == 0:
+                    #if t==25:
+                     #   print(str(user.taskNum)+" "+str(user.taskReward))
+                    self.user_num += 1
                 self.checkAction(user)
                 engaged += user.engagementDegree
-            self.averageTaskDistribution.append(tasknum / len(self.userList))
             self.status = engaged / len(self.userList)
-            self.loss.append(Loss)
-            self.engagedRate.append(self.status)
+            self.updateList(t)
+            if self.budget <= 0 and self.end == 0:
+                self.end = t
